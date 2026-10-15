@@ -50,6 +50,19 @@ unity status --until-ready --project-path <absolute path to the project>
 
 `status` reports `ready` when the editor can take commands; `unity command --project-path <path>` lists them.
 
+## Two worktree slots, per project
+
+An agent's branch gets its own worktree and its own editor, so the checkout you play in stays on your branch. Two slots beside the checkout keep their `Library` warm between branches; make each once, with its first import, then close the editor. The `unity-editor-ops` skill carries the take and release steps.
+
+```
+git worktree add --detach <checkout>-slot-1 main
+unity open <absolute path to the slot>
+unity status --until-ready --project-path <absolute path to the slot>
+unity close <absolute path to the slot>
+```
+
+For `<checkout>-slot-2`, make the worktree the same way, then with slot 1's editor closed copy its `Library` across (`cp -c -R <slot-1>/Library <slot-2>/Library`, an APFS clone) before the first open, so the second slot skips the import. Free slots sit at a detached HEAD; `git worktree list` shows which are taken.
+
 ## Unity's own Claude Code plugin
 
 Unity ships a plugin that carries the `unity-cli` skill, the reference for every command and flag, plus skills for common engine tasks. The `unity-operator` agent preloads `unity-cli` from it:

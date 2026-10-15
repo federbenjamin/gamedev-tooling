@@ -2,8 +2,9 @@
 name: unity-editor-ops
 description: >-
   Operate a running Unity editor through the Unity CLI to change and test a project live:
-  reach the editor, change scenes and code, recompile, run tests, ride play mode and read
-  numbers out of it, and recover from the failure modes that stall an editor driven by an agent
+  reach the editor, work in a warm worktree slot rather than the person's checkout, change scenes
+  and code, recompile, run tests, ride play mode and read numbers out of it, and recover from the
+  failure modes that stall an editor driven by an agent
   (Safe Mode, a throttled unfocused editor, a blocked main thread, stale import workers, a
   cursor lock, a full disk). Use together with the unity-cli skill whenever an agent must make
   or verify a change in a Unity project on this machine. NO-GO: project-specific tuning and
@@ -28,7 +29,48 @@ project (`unity pipeline list`; install it, then the editor needs a package reso
 from compile errors (fix the errors in the files, then the editor restarts), an editor still
 importing, a sandbox hiding it. A missing editor is opened with `unity open <project>` and waited
 for with `--until-ready`; a lock file left by a killed editor (`Temp/UnityLockfile`) and orphaned
-`AssetImportWorker` processes from the old editor are cleared first.
+`AssetImportWorker` processes from the old editor are cleared first. `unity open` signs in before
+it launches, and when the CLI's auth broker hangs it sits forever with no editor started (`status`,
+`close` and `vcs` commands do not sign in and keep working); stop its process group and launch
+the editor from the app instead: `open -na <editor .app> --args -projectpath <absolute path>`,
+then `status --until-ready` as usual.
+
+## Work in a slot, never in the person's checkout
+
+Unity opens one editor per project folder, and a branch switch or a script save under that
+editor recompiles it, which ends any play session in progress. So an agent that checks its branch
+out in the checkout the person has open locks them out of their own game. The rule: the person's
+checkout is theirs, on whatever branch they chose, and an agent's branch lives in a worktree of
+its own with an editor of its own. Each worktree is a full project with its own `Library`.
+
+Two long-lived slots beside the checkout, `<checkout>-slot-1` and `<checkout>-slot-2`, pay that
+`Library` once: it stays warm across branches, and a switch reimports only the files that differ.
+Make a slot once, from the checkout:
+
+```
+git worktree add --detach <checkout>-slot-1 main
+unity open <absolute slot path>
+unity status --until-ready --project-path <absolute slot path>
+unity close <absolute slot path>
+```
+
+Seed the second slot from the first with the first's editor closed: `cp -c -R <slot-1>/Library
+<slot-2>/Library` is an APFS clone, seconds for a gigabyte, and the editor then opens on it with
+only a check pass instead of an import. (`unity vcs git worktree add <branch> --into <path>
+--seed full` does the worktree and the copy in one step, but it skips the copy while the
+source's editor is running, which the person's checkout always is.)
+
+A slot is free when `git worktree list` shows it at a detached HEAD with a clean tree. Taking
+one: enter it (EnterWorktree with its path), `git fetch`, `git switch -c <branch> origin/main`,
+`unity open` it, `status --until-ready`. A slot on a named branch is taken. Releasing one, after
+the push or merge: `git switch --detach origin/main`, then `unity close` it; a close sent in the
+first seconds after ready can report `none`, so read its `Closed` column and send it again. Editors running at
+any time: the person's, plus one per taken slot. Never switch a slot's branch while its editor is
+compiling or in play mode; `unity status` ready and not playing comes first.
+
+A test run on another session's branch drives that branch's editor: `git worktree list` maps the
+branch to its folder, and every command carries that folder's path. Both slots taken: wait, or
+make a throwaway worktree the same way and remove it with `git worktree remove` after.
 
 ## Make a change
 
