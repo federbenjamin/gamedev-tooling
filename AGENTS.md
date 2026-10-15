@@ -1,4 +1,4 @@
-# gamedev-agents
+# gamedev-tooling
 
 <!-- >>> git-workflow (generated block; do not edit by hand) -->
 ## Git workflow

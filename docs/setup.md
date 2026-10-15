@@ -5,7 +5,7 @@ Everything the agents and skills in this plugin need on one machine, in the orde
 ## Claude Code and this plugin
 
 ```
-claude plugin install gamedev-agents --marketplace federbenjamin/gamedev-agents
+claude plugin install gamedev-tooling --marketplace federbenjamin/gamedev-tooling
 ```
 
 A plugin installed from a terminal loads in the next Claude Code session; inside an open session, `/reload-plugins` loads it now.
