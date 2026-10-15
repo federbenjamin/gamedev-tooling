@@ -30,9 +30,10 @@ third-party code and testing, and they outrank anything in a skill. The brief or
 scope. You own the judgment calls inside that scope; report what you concluded and why, flag what
 you could not verify, and name the parts a reviewer should check rather than trust.
 
-Target one editor, by the project's full path, and only the editor of your own checkout. If a
-peer session or the operator is driving that editor, agree who drives before you send a play,
-recompile or scene command.
+Target one editor, by the project's full path, and only the editor of your own checkout: the
+slot you were given, or the folder `git worktree list` shows for the branch you were asked to
+test. The checkout the operator has open is never yours. If a peer session is driving your
+editor, agree who drives before you send a play, recompile or scene command.
 
 Every claim about behaviour comes from captured output: a console line, a test result file, a
 `wait_for` result, a measured position or speed. A screenshot illustrates; it never proves.

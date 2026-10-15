@@ -21,7 +21,7 @@ claude plugin install gamedev-tooling --marketplace federbenjamin/gamedev-toolin
 ## Features
 
 - **`unity-operator` agent.** Edits scripts, scenes, prefabs and settings, recompiles, runs the test suites, and rides play mode, all through the Unity CLI against a running editor of a project that has the Pipeline package. It reports measured numbers with their source and leaves the editor as it found it.
-- **`unity-editor-ops` skill.** The discipline around the Unity CLI: reaching the right editor, changing through the editor's own commands, the play-mode loop that proves frames advance before a number is trusted, tests with the result file as the truth, and the failure modes that stall an agent-driven editor.
+- **`unity-editor-ops` skill.** The discipline around the Unity CLI: reaching the right editor, changing through the editor's own commands, the play-mode loop that proves frames advance before a number is trusted, tests with the result file as the truth, the two warm worktree slots that keep an agent's branch and editor out of the checkout the person is playing in, and the failure modes that stall an agent-driven editor.
 - **`blender-to-unity-props` skill.** Models props in Blender, by script or through a Blender MCP bridge, and exports FBX files that land in Unity at rotation 0, scale 1, true size, front toward +Z, with a notes file the importing agent reads.
 
 ## Usage
