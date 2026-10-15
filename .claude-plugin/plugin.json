@@ -1,0 +1,11 @@
+{
+  "name": "gamedev-agents",
+  "version": "0.1.0",
+  "description": "Agents and skills for game development with Claude Code: a Unity operator that changes and verifies a project through a running editor, the operating discipline around the Unity CLI, and Blender props that import into Unity at rotation 0, scale 1.",
+  "author": {
+    "name": "federbenjamin"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/federbenjamin/gamedev-agents",
+  "repository": "https://github.com/federbenjamin/gamedev-agents"
+}

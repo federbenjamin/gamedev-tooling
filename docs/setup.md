@@ -1,0 +1,104 @@
+# Toolchain setup
+
+Everything the agents and skills in this plugin need on one machine, in the order to install it. Commands are for macOS; the Unity CLI prints the Windows and Linux forms in its own help. Versions named here are the ones this plugin was last run against.
+
+## Claude Code and this plugin
+
+```
+claude plugin install gamedev-agents --marketplace federbenjamin/gamedev-agents
+```
+
+A plugin installed from a terminal loads in the next Claude Code session; inside an open session, `/reload-plugins` loads it now.
+
+## Unity CLI
+
+The command line tool that installs editors, opens projects and drives a running editor. Everything the `unity-operator` agent does goes through it.
+
+```
+curl -fsSL https://unity.com/install.sh | bash
+```
+
+Open a new shell, then check it:
+
+```
+unity --version
+unity doctor
+```
+
+Sign in once with `unity auth login`; editor installs and licences need the account.
+
+## Unity Hub and an editor
+
+The Hub is what the editor installer and the licence client expect to find. The CLI installs both:
+
+```
+unity hub install
+unity install 6000.6.4f1 --accept-eula --yes
+```
+
+Add build support for your targets with `--module`; `unity install 6000.6.4f1 --list-modules` prints the ids (for example `mac-il2cpp`). The editor lands under the Hub's install path, which `unity install-path` shows.
+
+## The Pipeline package, per project
+
+The editor-side half of the CLI. Add it to each project once; commit `Packages/manifest.json` so every clone and worktree exposes the command surface from its first open:
+
+```
+unity pipeline install --project-path <absolute path to the project>
+unity open <absolute path to the project>
+unity status --until-ready --project-path <absolute path to the project>
+```
+
+`status` reports `ready` when the editor can take commands; `unity command --project-path <path>` lists them.
+
+## Unity's own Claude Code plugin
+
+Unity ships a plugin that carries the `unity-cli` skill, the reference for every command and flag, plus skills for common engine tasks. The `unity-operator` agent preloads `unity-cli` from it:
+
+```
+unity setup claude
+```
+
+Do not also run `unity skill install claude-code`; Claude Code would load the skill twice.
+
+## Unity MCP: not needed
+
+With the Pipeline package and the CLI in place, an agent drives the editor from the shell and gets JSON back, so no MCP server sits between them. The CLI still offers one (`unity mcp` starts a stdio server; `unity mcp configure --list` names the clients it can register) for a client that wants editor tools as tool calls. For Claude Code the manual form is:
+
+```
+claude mcp add unity -- unity mcp --project-path <absolute path to the project>
+```
+
+This plugin's agent does not use it.
+
+## Blender
+
+The `blender-to-unity-props` skill runs Blender headless from its script template, so a model rebuilds after any fix without a window:
+
+```
+brew install --cask blender
+```
+
+The skill calls the binary at `/Applications/Blender.app/Contents/MacOS/Blender` with `-b --factory-startup --python <script>`. Last run against Blender 5.2.2 LTS, with the import measured in Unity 6000.6.4f1.
+
+## Blender MCP: optional
+
+Only for a live modelling session where the agent owns the Blender window; the headless route needs none of this. The community project [mcp-for-blender](https://github.com/ahujasid/blender-mcp) needs Blender 3.0 or newer, Python 3.10 or newer, and `uv`:
+
+```
+brew install uv
+uvx mcp-for-blender install-addon
+claude mcp add blender uvx mcp-for-blender
+```
+
+In Blender, enable the add-on under Edit > Preferences > Add-ons ("Interface: MCP for Blender"), then in the 3D viewport's sidebar (N) open the MCP for Blender tab and start the server. A second agent loading a `.blend` into that bridge replaces the scene in the window, which is why the skill defaults to headless.
+
+## Check
+
+A machine is ready when these print without an error:
+
+```
+claude plugin list
+unity doctor
+unity status --until-ready --project-path <absolute path to a project with the Pipeline package>
+/Applications/Blender.app/Contents/MacOS/Blender --version
+```
