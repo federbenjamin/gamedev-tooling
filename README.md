@@ -6,6 +6,8 @@
   <a href="LICENSE"><img src="https://img.shields.io/github/license/federbenjamin/gamedev-agents" alt="License"></a>
 </p>
 
+<p align="center"><img src="docs/media/hero.png" alt="A unity-operator hand-back: tests passed, six slide modes measured in play mode with their peak speeds, one finding, what was not verified, and the editor left as found" width="720"></p>
+
 gamedev-agents is a plugin for [Claude Code](https://code.claude.com). It adds an agent that changes and verifies a Unity project through a running editor, the operating discipline that keeps an agent-driven editor from stalling, and a skill for Blender props that import into Unity at rotation 0, scale 1. It is for anyone who builds a game with Claude Code and wants the agent to work inside the real editor, with measured results, instead of guessing from source files.
 
 ## Install
@@ -24,7 +26,7 @@ claude plugin install gamedev-agents --marketplace federbenjamin/gamedev-agents
 
 ## Usage
 
-Spawn the agent from a Claude Code session whose working directory is the Unity project, or name the project's absolute path in the prompt; the agent targets that editor by path and opens it when it is not running:
+Ask Claude Code, in plain words, to hand a Unity task to the `unity-operator` agent, from a session whose working directory is the Unity project or with the project's absolute path in the prompt. Claude makes the call below; the agent targets that editor by path and opens it when it is not running:
 
 ```
 Agent subagent_type=gamedev-agents:unity-operator
