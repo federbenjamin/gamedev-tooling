@@ -1,0 +1,15 @@
+{
+  "name": "gamedev-tooling",
+  "description": "Benjamin Feder's public game-development tooling for Claude Code: agents, skills and environment setup.",
+  "owner": {
+    "name": "federbenjamin"
+  },
+  "plugins": [
+    {
+      "name": "gamedev-tooling",
+      "source": "./",
+      "description": "Agents and skills for game development with Claude Code: a Unity operator that changes and verifies a project through a running editor, the operating discipline around the Unity CLI, and Blender props that import into Unity at rotation 0, scale 1.",
+      "category": "development"
+    }
+  ]
+}

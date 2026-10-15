@@ -1,0 +1,27 @@
+# Condensed from a real unity-operator hand-back (2026-10-15), project path shortened
+
+prompt: In /path/to/MyGame, play the SlidePark scene. For each of the six troughs,
+        start the player at the lip and 4 m down; report which slide mode took
+        over and whether the player reached the run-out.
+
+unity-operator hand-back
+  Editor 6000.6.4f1, Pipeline 0.8.0-exp.1, play mode ridden through the CLI
+  Edit-mode tests   103 / 103 pass            (NUnit result file)
+  Frames advancing  Time.frameCount changed   (wait_for, before any read)
+
+  Trough        Start    Expected         Got                 Peak m/s
+  Big Drop      walk-in  Sled             Sled                18.4
+  Classic       walk-in  ControllerSlide  ControllerSlide     20.2
+  Curved        walk-in  ControllerSlide  ControllerSlide     19.1
+  Long Gentle   walk-in  Current          Current             10.8
+  Narrow Chute  walk-in  SplineRider      SplineRider->CtrlS  16.6
+  Wide Bowl     walk-in  SteeredRagdoll   SteeredRagdoll      18.9
+
+  11 of 12 runs reached the run-out, no console errors, no respawn.
+  Long Gentle from 4 m down never entered a mode: pitch there is 43.8 deg,
+  the controller slope limit is 45 deg, so a standing player walks.
+
+  Not verified: the game ran at ~10 fps (editor unfocused), so the
+  ControllerSlide times are not wall-clock truth. No steering exercised.
+  Editor at hand-back: play off, scene not dirty, runInBackground restored,
+  status ready.
