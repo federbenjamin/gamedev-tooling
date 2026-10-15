@@ -10,7 +10,7 @@ gamedev-agents is a plugin for [Claude Code](https://code.claude.com). It adds a
 
 ## Install
 
-Needs [Claude Code](https://code.claude.com) with plugins, and the Unity CLI with a Unity editor for the Unity agent; [docs/setup.md](docs/setup.md) walks through the whole toolchain, Blender included. One command adds the marketplace and installs the plugin:
+Needs [Claude Code](https://code.claude.com) with plugins. The Unity agent also needs the Unity CLI, a Unity 6 editor (last run against 6000.6.4f1), and Unity's `com.unity.pipeline` package in each project it drives; those are five more commands, listed in order in [docs/setup.md](docs/setup.md), which also covers Blender. One command adds the marketplace and installs the plugin:
 
 ```
 claude plugin install gamedev-agents --marketplace federbenjamin/gamedev-agents
@@ -18,25 +18,25 @@ claude plugin install gamedev-agents --marketplace federbenjamin/gamedev-agents
 
 ## Features
 
-- **`unity-operator` agent.** Edits scripts, scenes, prefabs and settings, recompiles, runs the test suites, and rides play mode, all through the Unity CLI against a running editor. It reports measured numbers with their source and leaves the editor as it found it.
+- **`unity-operator` agent.** Edits scripts, scenes, prefabs and settings, recompiles, runs the test suites, and rides play mode, all through the Unity CLI against a running editor of a project that has the Pipeline package. It reports measured numbers with their source and leaves the editor as it found it.
 - **`unity-editor-ops` skill.** The discipline around the Unity CLI: reaching the right editor, changing through the editor's own commands, the play-mode loop that proves frames advance before a number is trusted, tests with the result file as the truth, and the failure modes that stall an agent-driven editor.
 - **`blender-to-unity-props` skill.** Models props in Blender, by script or through a Blender MCP bridge, and exports FBX files that land in Unity at rotation 0, scale 1, true size, front toward +Z, with a notes file the importing agent reads.
 
 ## Usage
 
-Spawn the agent from a session on a Unity project whose editor is open or can be opened:
+Spawn the agent from a Claude Code session whose working directory is the Unity project, or name the project's absolute path in the prompt; the agent targets that editor by path and opens it when it is not running:
 
 ```
 Agent subagent_type=gamedev-agents:unity-operator
-  prompt: "Ride the Classic slide with forward input held and report peak speed,
-           time to the run-out, and whether the player walks again within 3 s."
+  prompt: "In /path/to/MyGame, enter play mode on the Level1 scene, hold forward for
+           5 s, and report the player's peak speed and whether a console error appeared."
 ```
 
 It answers in under 40 lines: what changed, what the editor showed, what failed, and the editor's state at hand-back. The skills load on their own when a task matches their description; `/gamedev-agents:blender-to-unity-props` runs the Blender skill by hand. Each agent's and skill's full instructions are its file under `agents/` or `skills/`.
 
 ## How it works
 
-The agent never drives Unity through hand-edited scene files or a chat relay. It calls the `unity` command line tool, which finds the editor that has the project open and talks to the project's `com.unity.pipeline` package: about 160 commands for scenes, assets, play mode, tests, recompiles, screenshots and arbitrary C#, with JSON results, detached jobs for long work, and a wait on the frame counter that proves a play-mode run is really advancing. Blender work runs headless by default, so a modelling script re-runs after any fix; an MCP bridge is the route when the agent owns a Blender window.
+The agent never drives Unity through hand-edited scene files or a chat relay. It calls the `unity` command line tool, which finds the editor that has the project open and talks to `com.unity.pipeline`, Unity's package that gives a running editor a command surface (added once per project, see the setup doc): about 160 commands for scenes, assets, play mode, tests, recompiles, screenshots and arbitrary C#, with JSON results, detached jobs for long work, and a wait on the frame counter that proves a play-mode run is really advancing. Blender work runs headless by default, so a modelling script re-runs after any fix; an MCP bridge is the route when the agent owns a Blender window.
 
 ## Contributing
 
