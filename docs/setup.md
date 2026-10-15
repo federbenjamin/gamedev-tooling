@@ -61,7 +61,7 @@ unity status --until-ready --project-path <absolute path to the slot>
 unity close <absolute path to the slot>
 ```
 
-The same for `<checkout>-slot-2`. Free slots sit at a detached HEAD; `git worktree list` shows which are taken.
+For `<checkout>-slot-2`, make the worktree the same way, then with slot 1's editor closed copy its `Library` across (`cp -c -R <slot-1>/Library <slot-2>/Library`, an APFS clone) before the first open, so the second slot skips the import. Free slots sit at a detached HEAD; `git worktree list` shows which are taken.
 
 ## Unity's own Claude Code plugin
 

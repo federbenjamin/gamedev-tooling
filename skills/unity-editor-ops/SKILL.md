@@ -29,7 +29,11 @@ project (`unity pipeline list`; install it, then the editor needs a package reso
 from compile errors (fix the errors in the files, then the editor restarts), an editor still
 importing, a sandbox hiding it. A missing editor is opened with `unity open <project>` and waited
 for with `--until-ready`; a lock file left by a killed editor (`Temp/UnityLockfile`) and orphaned
-`AssetImportWorker` processes from the old editor are cleared first.
+`AssetImportWorker` processes from the old editor are cleared first. `unity open` signs in before
+it launches, and when the CLI's auth broker hangs it sits forever with no editor started (`status`,
+`close` and `vcs` commands do not sign in and keep working); stop its process group and launch
+the editor from the app instead: `open -na <editor .app> --args -projectpath <absolute path>`,
+then `status --until-ready` as usual.
 
 ## Work in a slot, never in the person's checkout
 
@@ -50,14 +54,17 @@ unity status --until-ready --project-path <absolute slot path>
 unity close <absolute slot path>
 ```
 
-`unity vcs git worktree add <branch> --into <path> --seed full` makes the worktree and copies
-`Library` from a source checkout, but it skips the copy while the source's editor is running, so
-seed the second slot from the first with the first's editor closed, then detach it.
+Seed the second slot from the first with the first's editor closed: `cp -c -R <slot-1>/Library
+<slot-2>/Library` is an APFS clone, seconds for a gigabyte, and the editor then opens on it with
+only a check pass instead of an import. (`unity vcs git worktree add <branch> --into <path>
+--seed full` does the worktree and the copy in one step, but it skips the copy while the
+source's editor is running, which the person's checkout always is.)
 
 A slot is free when `git worktree list` shows it at a detached HEAD with a clean tree. Taking
 one: enter it (EnterWorktree with its path), `git fetch`, `git switch -c <branch> origin/main`,
 `unity open` it, `status --until-ready`. A slot on a named branch is taken. Releasing one, after
-the push or merge: `git switch --detach origin/main`, then `unity close` it. Editors running at
+the push or merge: `git switch --detach origin/main`, then `unity close` it; a close sent in the
+first seconds after ready can report `none`, so read its `Closed` column and send it again. Editors running at
 any time: the person's, plus one per taken slot. Never switch a slot's branch while its editor is
 compiling or in play mode; `unity status` ready and not playing comes first.
 
