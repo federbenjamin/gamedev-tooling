@@ -83,8 +83,14 @@ the person's and they are playing, the stop ends their session: say so in the re
 
 Prefer the Pipeline's own commands (scene, GameObject, component, asset, package) over `eval`, and
 `eval` over editing a scene file by hand; scene YAML edited on disk under an open editor is the
-last resort and needs a refresh afterwards. After any script edit, `unity recompile` and read its
-errors before going on. A new tool the project will need more than once becomes a `[CliCommand]`
+last resort and needs a refresh afterwards: `AssetDatabase.ImportAsset(<path>)` for a prefab or
+asset edited on disk, before anything reads it. After any script edit, `unity recompile` and read its
+errors before going on. They arrive as `Error<TAB>CS0103<TAB><file><TAB><line>...`, so match `error`
+without regard to case. The server drops out during the domain reload, so `recompile` can report a
+network error on its status call: wait with `status --until-ready` and run `unity command
+recompile_status` again. A failed compile leaves the editor running the old assembly with no other
+sign, so before measuring anything confirm the new code is live, for example by reflecting on a member
+the edit added. `eval_file` takes an absolute path. A new tool the project will need more than once becomes a `[CliCommand]`
 in its editor assembly, discovered through `unity list`, rather than a script pasted into `eval`
 every time.
 
@@ -112,6 +118,27 @@ number is read. A frame count stuck while the editor ticks is often a paused edi
 `EditorApplication.isPaused`. A screenshot (`capture_game_view`) is a look, not proof; the frame
 counter is.
 
+Measure in fixed steps at full speed, never in slow motion. Set `Time.captureDeltaTime = 1/60` with
+`timeScale` at 1: each frame is then exactly 1/60 s of game time, run as fast as the editor ticks,
+so the numbers match a slow-motion run at a fraction of the wall time (in one project, six 3-second
+rides took 130 s in all, where a 1/20-speed ride had taken one to two minutes). Record from a
+per-frame handler registered through `eval`: one tagged line per frame from the moment that
+matters, and at the target time it pauses the game itself and writes its log, so the measurement
+happens on a frozen frame the agent then probes at leisure. Batch every case into one play session
+(reset the game, set the case, ride again) rather than one `editor_play` per case. At the end put
+back `captureDeltaTime` (0), `timeScale`, `runInBackground` and `EditorApplication.isPaused`. A probe
+that sets `isPaused` when the editor is not playing leaves it set, and the next `editor_play` then
+starts paused.
+
+Read a paused frame by counting, then look. Clipping is counted from skinned vertices
+(`SkinnedMeshRenderer.BakeMesh`) against the real geometry, per body region and per bone; a render
+from a temporary camera at fixed angles shows the pose but proves nothing, and each catches what the
+other misses. When a probe compares bodies that interpolate, read `Rigidbody.position` on every
+side: an interpolated Transform lags its physics pose by up to `velocity * fixedDeltaTime`, enough to
+read 0.1 m of drift that is not there. To trace a value inside the game's own code, add a tagged
+`Debug.Log`, ride, read `unity command console` into a file (it can pass 100 KB) and pull the tagged
+messages out of it with a script; remove the logs before committing.
+
 An agent's play session can bring the editor in front of whatever the person is working in, and
 no setting is known to stop it. Setting the Game view's `enterPlayModeBehavior` to
 `PlayUnfocused` does not: in one recorded session (Unity 6000.6) the editor came to the front a
@@ -135,7 +162,10 @@ in play mode for the operator.
 ## Tests
 
 The Edit-mode suite runs against the open editor with `unity test --mode EditMode --project-path
-<absolute path> --output <xml>`; the NUnit XML is the result, not the console. Batch mode
+<absolute path> --output <xml>`; the NUnit XML is the result, not the console. One fixture runs
+with `unity command run_tests --project-path <absolute path> --mode EditMode --filter <fixture>
+--result-only`, which prints JSON (`Summary`, then `Results` per test); the filter takes one name, so
+run it once per fixture (`A|B` runs nothing and reports 0 of 0). Batch mode
 (`unity run` or `Unity -batchmode -runTests`) only with the editor closed: two editors on one
 `Library` corrupt it. Never copy a project to run its tests elsewhere; the copy costs gigabytes
 on a disk that is usually near full and tests code the editor is not running.
