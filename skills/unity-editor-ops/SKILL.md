@@ -105,9 +105,18 @@ The editor throttles its update loop when it is not the frontmost window, which 
 state for an agent; a game can then sit at frame 1 while status says "playing", and timers padded
 to compensate make every test take six times longer than it should. The recipe that removes the
 problem, in this order: `set_autotick` once per editor session, `editor_set_run_in_background` for
-the session (and off again at the end), `editor_play`, `status --until-ready` (the Pipeline server
+the session (a Pipeline without it: `eval` `UnityEngine.Application.runInBackground = true`), and
+off again at the end, `editor_play`, `status --until-ready` (the Pipeline server
 drops out during the reload), then `wait_for` on `Time.frameCount` with `op: changed` before any
-number is read. A screenshot (`capture_game_view`) is a look, not proof; the frame counter is.
+number is read. A frame count stuck while the editor ticks is often a paused editor: read
+`EditorApplication.isPaused`. A screenshot (`capture_game_view`) is a look, not proof; the frame
+counter is.
+
+Entering play mode with the Game view on "Play Focused" (Unity's default) brings the editor in
+front of whatever the person is working in. Before an agent's own `editor_play`, read the Game
+view's `enterPlayModeBehavior` (a non-public property of `UnityEditor.PlayModeView`, reached by
+reflection from `eval`), set it to `PlayUnfocused`, and set it back after `editor_stop`; their own
+Play button then keeps the behaviour they chose.
 
 Drive the game the way its input layer expects: set the project's input component fields, or
 `simulate_key` / `simulate_pointer`, from a registered per-frame sampler rather than one-off
