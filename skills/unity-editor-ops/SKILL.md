@@ -112,11 +112,13 @@ number is read. A frame count stuck while the editor ticks is often a paused edi
 `EditorApplication.isPaused`. A screenshot (`capture_game_view`) is a look, not proof; the frame
 counter is.
 
-Entering play mode with the Game view on "Play Focused" (Unity's default) brings the editor in
-front of whatever the person is working in. Before an agent's own `editor_play`, read the Game
-view's `enterPlayModeBehavior` (a non-public property of `UnityEditor.PlayModeView`, reached by
-reflection from `eval`), set it to `PlayUnfocused`, and set it back after `editor_stop`; their own
-Play button then keeps the behaviour they chose.
+An agent's play session can bring the editor in front of whatever the person is working in, and
+no setting is known to stop it. Setting the Game view's `enterPlayModeBehavior` to
+`PlayUnfocused` does not: in one recorded session (Unity 6000.6) the editor came to the front a
+second after an agent's `editor_play` with it set, and again seconds after a later
+`runInBackground` change, while the same steps run alone did not reproduce it. Tell the person
+before a ride that it may take their focus, and keep rides few: batch the measurements one ride
+needs into it.
 
 Drive the game the way its input layer expects: set the project's input component fields, or
 `simulate_key` / `simulate_pointer`, from a registered per-frame sampler rather than one-off
