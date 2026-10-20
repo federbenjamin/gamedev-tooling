@@ -74,6 +74,13 @@ make a throwaway worktree the same way and remove it with `git worktree remove` 
 
 ## Make a change
 
+Stop play mode before any edit: `editor_stop`, then `status --until-ready`, then edit. An edit made
+in play mode does not land the way it looks. A script save recompiles and reloads the code inside
+the running game (Unity's default "Script Changes While Playing"), so every unserialized field
+resets and the session usually breaks. A change to a scene object is thrown away when play stops.
+A builder that opens or saves a scene refuses. Ride again after the recompile. When the editor is
+the person's and they are playing, the stop ends their session: say so in the report.
+
 Prefer the Pipeline's own commands (scene, GameObject, component, asset, package) over `eval`, and
 `eval` over editing a scene file by hand; scene YAML edited on disk under an open editor is the
 last resort and needs a refresh afterwards. After any script edit, `unity recompile` and read its
