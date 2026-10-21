@@ -105,6 +105,28 @@ claude mcp add blender uvx mcp-for-blender
 
 In Blender, enable the add-on under Edit > Preferences > Add-ons ("Interface: MCP for Blender"), then in the 3D viewport's sidebar (N) open the MCP for Blender tab and start the server. A second agent loading a `.blend` into that bridge replaces the scene in the window, which is why the skill defaults to headless.
 
+## Image tools: for concept art
+
+The `prop-concept-art` skill draws with either tool; one is enough.
+
+**Codex CLI**, installed and signed in per [its docs](https://developers.openai.com/codex/cli). Image generation is built in and on by default; last run against `codex-cli` 0.163.0. Check:
+
+```
+codex features list
+```
+
+`image_generation` should read `stable true`.
+
+**Gemini CLI** with the Nano Banana extension, last run against Gemini CLI 0.65.0 and the extension 1.0.12. The `--allow-scripts` flag lets npm build the two native modules it would otherwise skip, for keychain storage and the interactive shell:
+
+```
+npm install -g --allow-scripts=@github/keytar,node-pty @google/gemini-cli
+gemini extensions install https://github.com/gemini-cli-extensions/nanobanana --consent --skip-settings
+gemini extensions config nanobanana
+```
+
+The last command asks for a Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey). Image models need billing on the key's project: a free-tier key returns `429 RESOURCE_EXHAUSTED`. Run `gemini` once in a terminal and pick **Use Gemini API Key**: Google sign-in for personal accounts no longer serves Gemini CLI.
+
 ## Check
 
 A machine is ready when these print without an error:
@@ -114,4 +136,5 @@ claude plugin list
 unity doctor
 unity status --until-ready --project-path <absolute path to a project with the Pipeline package>
 /Applications/Blender.app/Contents/MacOS/Blender --version
+codex --version
 ```

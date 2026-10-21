@@ -8,7 +8,7 @@
 
 <p align="center"><img src="docs/media/hero.png" alt="A unity-operator hand-back: tests passed, six slide modes measured in play mode with their peak speeds, one finding, what was not verified, and the editor left as found" width="720"></p>
 
-gamedev-tooling is a plugin for [Claude Code](https://code.claude.com). It adds an agent that changes and verifies a Unity project through a running editor, the operating discipline that keeps an agent-driven editor from stalling, a skill for Blender props that import into Unity at rotation 0, scale 1, and a setup guide for the whole toolchain. It is for anyone who builds a game with Claude Code and wants the agent to work inside the real editor, with measured results, instead of guessing from source files.
+gamedev-tooling is a plugin for [Claude Code](https://code.claude.com). It adds an agent that changes and verifies a Unity project through a running editor, the operating discipline that keeps an agent-driven editor from stalling, a skill for Blender props that import into Unity at rotation 0, scale 1, a skill that draws the concept art those props are built from, and a setup guide for the whole toolchain. It is for anyone who builds a game with Claude Code and wants the agent to work inside the real editor, with measured results, instead of guessing from source files.
 
 ## Install
 
@@ -23,6 +23,7 @@ claude plugin install gamedev-tooling --marketplace federbenjamin/gamedev-toolin
 - **`unity-operator` agent.** Edits scripts, scenes, prefabs and settings, recompiles, runs the test suites, and rides play mode, all through the Unity CLI against a running editor of a project that has the Pipeline package. It reports measured numbers with their source and leaves the editor as it found it.
 - **`unity-editor-ops` skill.** The discipline around the Unity CLI: reaching the right editor, changing through the editor's own commands, the play-mode loop that proves frames advance before a number is trusted, tests with the result file as the truth, the two warm worktree slots that keep an agent's branch and editor out of the checkout the person is playing in, and the failure modes that stall an agent-driven editor.
 - **`blender-to-unity-props` skill.** Models props in Blender, by script or through a Blender MCP bridge, and exports FBX files that land in Unity at rotation 0, scale 1, true size, front toward +Z, with a notes file the importing agent reads.
+- **`prop-concept-art` skill.** Generates concept art for a prop or character with Codex's image generation or Gemini's Nano Banana, held to the project's art style through an approved anchor image, one change per round, and hands the approved image to the Blender modeller.
 
 ## Usage
 

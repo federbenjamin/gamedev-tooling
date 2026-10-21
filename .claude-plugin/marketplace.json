@@ -8,7 +8,7 @@
     {
       "name": "gamedev-tooling",
       "source": "./",
-      "description": "Agents and skills for game development with Claude Code: a Unity operator that changes and verifies a project through a running editor, the operating discipline around the Unity CLI, and Blender props that import into Unity at rotation 0, scale 1.",
+      "description": "Agents and skills for game development with Claude Code: a Unity operator that changes and verifies a project through a running editor, the operating discipline around the Unity CLI, Blender props that import into Unity at rotation 0, scale 1, and concept art for them drawn to the project's style.",
       "category": "development"
     }
   ]
