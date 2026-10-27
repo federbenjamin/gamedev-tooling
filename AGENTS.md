@@ -1,5 +1,7 @@
 # gamedev-tooling
 
+gamedev-tooling is a public Claude Code plugin and marketplace for building games with Unity and Blender. It holds the `unity-operator` agent, which changes and verifies a Unity project through a running editor, and three skills: `unity-editor-ops` (the discipline around the Unity CLI), `blender-to-unity-props` (Blender props that import at rotation 0, scale 1) and `prop-concept-art` (the concept art those props are modelled from). It is for anyone who builds a game with Claude Code, and `docs/setup.md` covers the toolchain it needs.
+
 <!-- >>> git-workflow (generated block; do not edit by hand) -->
 ## Git workflow
 
